@@ -15,6 +15,10 @@ def load_configurations(app):
     app.config["VERSION"] = os.getenv("VERSION")
     app.config["PHONE_NUMBER_ID"] = os.getenv("PHONE_NUMBER_ID")
     app.config["VERIFY_TOKEN"] = os.getenv("VERIFY_TOKEN")
+    app.config["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+    app.config["OPEN_AI_API_KEY"] = os.getenv("OPEN_AI_API_KEY")
+    app.config["OPEN_AI_API_KEY"] = os.getenv("OPEN_AI_API_KEY")
+    app.config["OPENAI_ASSISTANT_ID"] = os.getenv("OPENAI_ASSISTANT_ID")
 
 
 def configure_logging():

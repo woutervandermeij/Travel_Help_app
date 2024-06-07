@@ -56,7 +56,8 @@ def store_thread(wa_id, thread_id):
 # --------------------------------------------------------------
 def generate_response(message_body, wa_id, name):
     #W: The client API added
-    client = OpenAI(api_key="sk-proj-dUxxWfYFOednYrWIwYF0T3BlbkFJoNL6lmBUsVaInAZ5eDaK")
+    client = OpenAI(api_key=current_app.config['OPEN_AI_API_KEY'])
+  
     # Check if there is already a thread_id for the wa_id
     thread_id = check_if_thread_exists(wa_id)
 
@@ -90,8 +91,10 @@ def generate_response(message_body, wa_id, name):
 # --------------------------------------------------------------
 def run_assistant(thread):
     # Retrieve the Assistant
-    client = OpenAI(api_key="sk-proj-dUxxWfYFOednYrWIwYF0T3BlbkFJoNL6lmBUsVaInAZ5eDaK")
-    assistant = client.beta.assistants.retrieve("asst_03PYWOUSsRv8rdlBwtkCa4Ey")
+    client = OpenAI(api_key=current_app.config['OPEN_AI_API_KEY'])
+    assistant = client.beta.assistants.retrieve(current_app.config['OPENAI_ASSISTANT_ID'])
+    
+    
     # Run the assistant
     run = client.beta.threads.runs.create(
         thread_id=thread.id,
