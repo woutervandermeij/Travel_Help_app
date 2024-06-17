@@ -5,7 +5,7 @@ import logging
 
 
 def load_configurations(app):
-    BASEDIR = os.path.abspath(os.path.dirname(__file__))
+    BASEDIR = os.path.expanduser('~/Travel_Help_app')
     load_dotenv(os.path.join(BASEDIR, ".env"),override=True)
     app.config["ACCESS_TOKEN"] = os.getenv("ACCESS_TOKEN")
     app.config["YOUR_PHONE_NUMBER"] = os.getenv("YOUR_PHONE_NUMBER")

@@ -1,22 +1,29 @@
 import json
-from dotenv import load_dotenv, find_dotenv
+#from dotenv import load_dotenv, find_dotenv
 import os
 import requests
-import aiohttp
-import asyncio
+#import aiohttp
+#import asyncio
+
+try:
+    from dotenv import load_dotenv, find_dotenv
+    print("Package is installed")
+except ImportError:
+    print("Package is not installed")
 
 # --------------------------------------------------------------
 # Load environment variables
 # --------------------------------------------------------------
 
 # Find the .env file path
-BASEDIR = os.path.abspath(os.path.dirname(__file__))
+#BASEDIR = os.path.abspath(os.path.dirname(__file__))
+BASEDIR = os.path.expanduser('~/Travel_Help_app')
+print("The base directory is:", BASEDIR )
 load_dotenv(os.path.join(BASEDIR, ".env"),override=True)
 
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 print(ACCESS_TOKEN )
 RECIPIENT_WAID = os.getenv("RECIPIENT_WAID")
-print("The recipients phone number is:", RECIPIENT_WAID)
 PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
 VERSION = os.getenv("VERSION")
 
@@ -44,7 +51,7 @@ def send_whatsapp_message():
     return response
 
 
-# Call the function
+#Call the function
 response = send_whatsapp_message()
 print(response.status_code)
 print(response.json())
@@ -56,43 +63,43 @@ print(response.json())
 # NOTE: First reply to the message from the user in WhatsApp!
 
 
-def get_text_message_input(recipient, text):
-    return json.dumps(
-        {
-            "messaging_product": "whatsapp",
-            "recipient_type": "individual",
-            "to": recipient,
-            "type": "text",
-            "text": {"preview_url": False, "body": text},
-        }
-    )
+#def get_text_message_input(recipient, text):
+#    return json.dumps(
+#        {
+#            "messaging_product": "whatsapp",
+#            "recipient_type": "individual",
+#            "to": recipient,
+#            "type": "text",
+#            "text": {"preview_url": False, "body": text},
+#        }
+#    )
 
 
-def send_message(data):
-    headers = {
-        "Content-type": "application/json",
-        "Authorization": f"Bearer {ACCESS_TOKEN}",
-    }
+#def send_message(data):
+#    headers = {
+#        "Content-type": "application/json",
+#        "Authorization": f"Bearer {ACCESS_TOKEN}",
+#    }
 
-    url = f"https://graph.facebook.com/{VERSION}/{PHONE_NUMBER_ID}/messages"
+#    url = f"https://graph.facebook.com/{VERSION}/{PHONE_NUMBER_ID}/messages"
 
-    response = requests.post(url, data=data, headers=headers)
-    if response.status_code == 200:
-        print("Status:", response.status_code)
-        print("Content-type:", response.headers["content-type"])
-        print("Body:", response.text)
-        return response
-    else:
-        print(response.status_code)
-        print(response.text)
-        return response
+#    response = requests.post(url, data=data, headers=headers)
+#    if response.status_code == 200:
+#        print("Status:", response.status_code)
+#        print("Content-type:", response.headers["content-type"])
+#        print("Body:", response.text)
+#        return response
+#   else:
+#        print(response.status_code)
+#        print(response.text)
+#        return response
 
 
-data = get_text_message_input(
-    recipient=RECIPIENT_WAID, text="Hello, this is a test message."
-)
+#data = get_text_message_input(
+#    recipient=RECIPIENT_WAID, text="Hello, this is a test message."
+#)
 
-response = send_message(data)
+#response = send_message(data)
 
 # --------------------------------------------------------------
 # Send a custom text WhatsApp message asynchronously
@@ -100,45 +107,45 @@ response = send_message(data)
 
 
 # Does not work with Jupyter!
-async def send_message(data):
-    headers = {
-        "Content-type": "application/json",
-        "Authorization": f"Bearer {ACCESS_TOKEN}",
-    }
-
-    async with aiohttp.ClientSession() as session:
-        url = "https://graph.facebook.com" + f"/{VERSION}/{PHONE_NUMBER_ID}/messages"
-        try:
-            async with session.post(url, data=data, headers=headers) as response:
-                if response.status == 200:
-                    print("Status:", response.status)
-                    print("Content-type:", response.headers["content-type"])
-
-                    html = await response.text()
-                    print("Body:", html)
-                else:
-                    print(response.status)
-                    print(response)
-        except aiohttp.ClientConnectorError as e:
-            print("Connection Error", str(e))
-
-
-def get_text_message_input(recipient, text):
-    return json.dumps(
-        {
-            "messaging_product": "whatsapp",
-            "recipient_type": "individual",
-            "to": recipient,
-            "type": "text",
-            "text": {"preview_url": False, "body": text},
-        }
-    )
+#async def send_message(data):
+#    headers = {
+#        "Content-type": "application/json",
+#        "Authorization": f"Bearer {ACCESS_TOKEN}",
+#    }
+#
+#    async with aiohttp.ClientSession() as session:
+#        url = "https://graph.facebook.com" + f"/{VERSION}/{PHONE_NUMBER_ID}/messages"
+#        try:
+#            async with session.post(url, data=data, headers=headers) as response:
+#                if response.status == 200:
+#                    print("Status:", response.status)
+#                    print("Content-type:", response.headers["content-type"])
+#
+#                    html = await response.text()
+#                    print("Body:", html)
+#                else:
+#                    print(response.status)
+#                    print(response)
+#        except aiohttp.ClientConnectorError as e:
+#            print("Connection Error", str(e))
 
 
-data = get_text_message_input(
-    recipient=RECIPIENT_WAID, text="Hello, this is a test message."
-)
+#def get_text_message_input(recipient, text):
+#    return json.dumps(
+#        {
+#            "messaging_product": "whatsapp",
+#            "recipient_type": "individual",
+#            "to": recipient,
+#            "type": "text",
+#            "text": {"preview_url": False, "body": text},
+#        }
+#    )
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(send_message(data))
-loop.close()
+
+#data = get_text_message_input(
+#    recipient=RECIPIENT_WAID, text="Hello, this is a test message."
+#)
+
+#loop = asyncio.get_event_loop()
+#loop.run_until_complete(send_message(data))
+#loop.close()

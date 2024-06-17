@@ -5,7 +5,7 @@ import os
 import time
 import logging
 
-BASEDIR = os.path.abspath(os.path.dirname(__file__))
+BASEDIR = os.path.expanduser('~/Travel_Help_app')
 load_dotenv(os.path.join(BASEDIR, ".env"),override=True)
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")

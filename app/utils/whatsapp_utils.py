@@ -27,7 +27,7 @@ def get_text_message_input(recipient, text):
         }
     )
 
-#Here you can program what is the response. 
+#Here you can program what is the response.
 #def generate_response(response):
 #    return response.lower()
     # Return text in uppercase
@@ -57,7 +57,7 @@ def store_thread(wa_id, thread_id):
 def generate_response(message_body, wa_id, name):
     #W: The client API added
     client = OpenAI(api_key=current_app.config['OPEN_AI_API_KEY'])
-  
+
     # Check if there is already a thread_id for the wa_id
     thread_id = check_if_thread_exists(wa_id)
 
@@ -69,9 +69,11 @@ def generate_response(message_body, wa_id, name):
         thread_id = thread.id
 
     # Otherwise, retrieve the existing thread
+    #W: changed to only receive the last three messages
     else:
         print(f"Retrieving existing thread for {name} with wa_id {wa_id}")
         thread = client.beta.threads.retrieve(thread_id)
+
 
     # Add message to thread
     message = client.beta.threads.messages.create(
@@ -93,8 +95,8 @@ def run_assistant(thread):
     # Retrieve the Assistant
     client = OpenAI(api_key=current_app.config['OPEN_AI_API_KEY'])
     assistant = client.beta.assistants.retrieve(current_app.config['OPENAI_ASSISTANT_ID'])
-    
-    
+
+
     # Run the assistant
     run = client.beta.threads.runs.create(
         thread_id=thread.id,
@@ -116,13 +118,18 @@ def run_assistant(thread):
 
 ########################################################
 
-def send_message(data):
+def send_message(data,own_phonenumber,time_spend):
     headers = {
         "Content-type": "application/json",
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
 
-    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{current_app.config['PHONE_NUMBER_ID']}/messages"
+    #url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{current_app.config['PHONE_NUMBER_ID']}/messages"
+    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{own_phonenumber}/messages"
+
+    if time_spend > 300:
+        logging.error("More than 5 minutes have passed")
+        return jsonify({"status": "error", "message": "To long since initial message send"}), 403
 
     try:
         response = requests.post(
@@ -165,9 +172,14 @@ def process_whatsapp_message(body):
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
     print("The whatsapp Id is:",wa_id)
-    
+
+
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
     message_body = message["text"]["body"]
+    #WMEJ: Dit toegevoegd, geeft de whatsappid van de sender weer.(is ander nummer dan display phonenumber maar nodig voor whatsapp terug)
+    own_phonenumber = body["entry"][0]["changes"][0]["value"]["metadata"]["phone_number_id"]
+    timestamp = int(message["timestamp"])
+    display_phone_number = body["entry"][0]["changes"][0]["value"]["metadata"]["display_phone_number"]
 
     # TODO: implement custom function here
     #response = generate_response(message_body)
@@ -175,11 +187,15 @@ def process_whatsapp_message(body):
     # OpenAI Integration
     response = generate_response(message_body, wa_id, name)
     response = process_text_for_whatsapp(response)
+    #W:Added it
+    now = time.time()
+    time_spend =now-timestamp
+
+    #response = response + "The own phonenumber is" + own_phonenumber + "the spend time is" + str(time_spend) + "display_phonenumber" + display_phone_number
 
     #data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
     data = get_text_message_input(wa_id, response)
-    
-    send_message(data)
+    send_message(data,own_phonenumber,time_spend)
 
 
 def is_valid_whatsapp_message(body):
@@ -198,4 +214,3 @@ def is_valid_whatsapp_message(body):
 
 #new_message = generate_response("What is the wificode?", "456", "John")
 #print(new_message)
-
